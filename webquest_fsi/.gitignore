@@ -7,19 +7,45 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Runtime data
+pids
+*.pid
+*.pid.lock
+*.seed
+
+# Dependencies and build output
 node_modules
 dist
 dist-ssr
+.vite
+coverage
+*.tsbuildinfo
+
+# Environment and secrets
 *.local
 .env
 .env.*
 !.env.example
+!.env.deploy.example
+
+# Local database, backups and dumps
+*.sql
+*.dump
+*.bak
+backups/
+tmp/
+temp/
+
+# Docker local overrides
+docker-compose.override.yml
 
 # Editor directories and files
+.history
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj

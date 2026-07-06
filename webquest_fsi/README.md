@@ -124,6 +124,31 @@ Para remover tambem o volume do banco:
 docker compose down -v
 ```
 
+## Deploy com containers de producao
+
+Para deploy real, use os arquivos de producao:
+
+- `Dockerfile.frontend.prod`
+- `Dockerfile.api.prod`
+- `docker-compose.deploy.yml`
+- `nginx.conf`
+
+O comando de subida em producao e:
+
+```bash
+cp .env.deploy.example .env.deploy
+docker compose --env-file .env.deploy -f docker-compose.deploy.yml up -d --build
+```
+
+Nesse modo:
+
+- o frontend e compilado e servido por `nginx`
+- a API roda com `npm start`
+- o Postgres fica somente na rede interna do Docker
+- a aplicacao publica responde na porta `80`
+
+Guia completo em [DEPLOY_GRATUITO.md](file:///home/kauan_rubem/webquest_fsi/webquest_fsi/DEPLOY_GRATUITO.md).
+
 ## Variaveis de ambiente
 
 - `PORT`: porta da API
