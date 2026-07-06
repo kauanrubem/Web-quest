@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '')
+
 const menuItems = [
   ['introducao', 'Introducao'],
   ['tarefa', 'Tarefa'],
@@ -160,6 +162,10 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+function apiUrl(path) {
+  return apiBaseUrl ? `${apiBaseUrl}${path}` : path
+}
+
 function TrashIcon({ className = 'h-4 w-4' }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className={className}>
@@ -267,7 +273,7 @@ function App() {
     setLoadingCatalog(true)
 
     try {
-      const response = await fetch('/api/catalog')
+      const response = await fetch(apiUrl('/api/catalog'))
       const data = await response.json()
 
       if (!response.ok) {
@@ -331,7 +337,7 @@ function App() {
     setAreaFeedback('envio', '', '')
 
     try {
-      const response = await fetch('/api/submissions', {
+      const response = await fetch(apiUrl('/api/submissions'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -370,7 +376,7 @@ function App() {
     setAreaFeedback('monitor', '', '')
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -418,7 +424,7 @@ function App() {
     setAreaFeedback('acervo', '', '')
 
     try {
-      const response = await fetch(`/api/admin/submissions/${submission.id}`, {
+      const response = await fetch(apiUrl(`/api/admin/submissions/${submission.id}`), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -463,7 +469,7 @@ function App() {
     setAreaFeedback('monitor', '', '')
 
     try {
-      const response = await fetch(`/api/admin/semesters/${semester.id}`, {
+      const response = await fetch(apiUrl(`/api/admin/semesters/${semester.id}`), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

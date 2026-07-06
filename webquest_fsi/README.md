@@ -149,6 +149,134 @@ Nesse modo:
 
 Guia completo em [DEPLOY_GRATUITO.md](file:///home/kauan_rubem/webquest_fsi/webquest_fsi/DEPLOY_GRATUITO.md).
 
+## Deploy na Vercel
+
+Na Vercel, este projeto pode subir em um unico projeto:
+
+- frontend Vite como site estatico
+- API Express como funcao serverless em `/api`
+- banco Postgres externo via `DATABASE_URL`
+
+### 1. Criar o banco Postgres externo
+
+Como a Vercel nao hospeda o Postgres deste projeto diretamente dentro do mesmo deploy, use um banco gerenciado compativel com PostgreSQL, como:
+
+- Neon
+- Supabase
+- Render Postgres
+- Vercel Postgres
+
+Ao finalizar a criacao, copie a string completa de conexao em formato `DATABASE_URL`.
+
+### 2. Importar o projeto na Vercel
+
+No painel da Vercel:
+
+1. clique em `Add New > Project`
+2. importe o repositorio Git
+3. se a Vercel detectar uma pasta raiz diferente, ajuste `Root Directory` para a pasta do projeto
+4. confirme o preset `Vite`
+
+Este repositorio ja possui:
+
+- `vercel.json` para build do frontend
+- `api/index.js` como entrada serverless da API
+
+### 3. Configurar as variaveis de ambiente
+
+Cadastre no projeto da Vercel:
+
+- `DATABASE_URL=postgresql://...`
+- `PGSSL=true`
+- `ADMIN_SECRET=sua-chave-forte-do-monitor`
+
+Observacoes:
+
+- `PGSSL=true` costuma ser necessario em bancos gerenciados
+- `PORT` nao precisa ser configurado na Vercel
+- `VITE_API_BASE_URL` pode ficar vazio quando frontend e API estiverem no mesmo projeto da Vercel
+
+### 4. Fazer o deploy
+
+Depois de salvar as variaveis:
+
+1. clique em `Deploy`
+2. aguarde o build do frontend
+3. aguarde a publicacao da funcao serverless em `/api/index.js`
+
+### 5. Testar o sistema publicado
+
+Depois do deploy:
+
+- abra a URL gerada pela Vercel
+- confirme se a pagina carrega normalmente
+- teste `GET /api/health`
+- valide a listagem de trabalhos
+- envie um trabalho de teste
+- teste o painel do monitor com a `ADMIN_SECRET`
+
+### 6. Quando usar `VITE_API_BASE_URL`
+
+Se voce publicar o frontend e a API em projetos separados, configure:
+
+- `VITE_API_BASE_URL=https://url-da-sua-api`
+
+Se tudo estiver no mesmo projeto da Vercel, mantenha essa variavel vazia para o frontend continuar usando `/api/...`.
+
+## Deploy no Render
+
+No Render, este projeto deve ser publicado em tres partes:
+
+1. banco Postgres gerenciado pelo Render
+2. API como `Web Service`
+3. frontend como `Static Site`
+
+### 1. Criar o banco
+
+No dashboard do Render:
+
+- crie um `PostgreSQL`
+- escolha o nome `webquest-fsi-db`
+- depois copie a `Internal Database URL`
+
+### 2. Subir a API
+
+Crie um `Web Service` a partir do repositorio e use:
+
+- `Environment`: `Node`
+- `Build Command`: `npm install`
+- `Start Command`: `npm start`
+
+Variaveis da API:
+
+- `ADMIN_SECRET=sua-chave-do-monitor`
+- `DATABASE_URL=<internal-database-url-do-render>`
+- `PGSSL=false`
+
+Observacao:
+
+- o `PORT` nao precisa ser cadastrado manualmente no Render, porque a propria plataforma fornece essa variavel para a Web Service
+
+### 3. Subir o frontend
+
+Crie um `Static Site` a partir do mesmo repositorio e use:
+
+- `Build Command`: `npm install && npm run build`
+- `Publish Directory`: `dist`
+
+Variavel do frontend:
+
+- `VITE_API_BASE_URL=https://URL-DA-SUA-API.onrender.com`
+
+### 4. Testar
+
+Depois do deploy:
+
+- abra a URL do frontend
+- valide se a listagem de trabalhos carrega
+- teste um envio de trabalho
+- teste o painel do monitor com `ADMIN_SECRET`
+
 ## Variaveis de ambiente
 
 - `PORT`: porta da API

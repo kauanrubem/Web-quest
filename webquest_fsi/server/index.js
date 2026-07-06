@@ -4,9 +4,10 @@ import express from 'express'
 import { z } from 'zod'
 import { initializeDatabase, pool } from './db.js'
 
-const app = express()
+export const app = express()
 const PORT = Number(process.env.PORT || 3001)
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'monitor-fsi-local'
+let initializationPromise
 
 const submissionSchema = z.object({
   semesterId: z.coerce.number().int().positive().optional(),
@@ -560,14 +561,24 @@ app.use((error, _req, res, next) => {
 })
 
 async function startServer() {
-  await initializeDatabase()
+  await ensureInitialized()
 
   app.listen(PORT, () => {
     console.log(`API do WebQuest rodando na porta ${PORT}.`)
   })
 }
 
-startServer().catch((error) => {
-  console.error('Falha ao iniciar a API.', error)
-  process.exit(1)
-})
+export function ensureInitialized() {
+  if (!initializationPromise) {
+    initializationPromise = initializeDatabase()
+  }
+
+  return initializationPromise
+}
+
+if (!process.env.VERCEL) {
+  startServer().catch((error) => {
+    console.error('Falha ao iniciar a API.', error)
+    process.exit(1)
+  })
+}
